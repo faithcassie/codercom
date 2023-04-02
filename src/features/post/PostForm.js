@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { createPost } from "./postSlice";
+import { createPost, editPost } from "./postSlice";
 import { LoadingButton } from "@mui/lab";
+import { current } from "@reduxjs/toolkit";
 
 const yupSchema = Yup.object().shape({
   content: Yup.string().required("Content is required"),
@@ -18,9 +19,9 @@ const defaultValues = {
   image: null,
 };
 
-function PostForm() {
+function PostForm({ userId, postId, content }) {
   const { isLoading } = useSelector((state) => state.post);
-
+  // console.log(currentImage);
   const methods = useForm({
     resolver: yupResolver(yupSchema),
     defaultValues,
@@ -36,7 +37,7 @@ function PostForm() {
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
-
+      console.log(file);
       if (file) {
         setValue(
           "image",
@@ -52,17 +53,25 @@ function PostForm() {
   const onSubmit = (data) => {
     dispatch(createPost(data)).then(() => reset());
   };
+  const onEdit = (data) => {
+    dispatch(editPost({ ...data, postId, userId })).then(() => reset());
+  };
 
   return (
     <Card sx={{ p: 3 }}>
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <FormProvider
+        methods={methods}
+        onSubmit={content ? handleSubmit(onEdit) : handleSubmit(onSubmit)}
+      >
         <Stack spacing={2}>
           <FTextField
             name="content"
             multiline
             fullWidth
             rows={4}
-            placeholder="Share what you are thinking here..."
+            placeholder={
+              content ? content : "Share what you are thinking here..."
+            }
             sx={{
               "& fieldset": {
                 borderWidth: `1px !important`,
