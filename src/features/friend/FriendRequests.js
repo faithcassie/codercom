@@ -9,18 +9,28 @@ import {
   Container,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { getFriendRequests } from "./friendSlice";
+import { getFriendRequests, getSentRequests } from "./friendSlice";
 import UserCard from "./UserCard";
 import SearchInput from "../../components/SearchInput";
 
 function FriendRequests() {
   const [filterName, setFilterName] = useState("");
   const [page, setPage] = React.useState(1);
+  const [page2, setPage2] = React.useState(1);
 
-  const { currentPageUsers, usersById, totalUsers, totalPages } = useSelector(
-    (state) => state.friend
-  );
+  const {
+    currentPageUsers,
+    sentUsersList,
+    usersById,
+    totalUsers,
+    totalPages,
+    totalUsers2,
+    totalPages2,
+  } = useSelector((state) => state.friend);
   const users = currentPageUsers.map((userId) => usersById[userId]);
+  const users2 = sentUsersList.map((userId) => usersById[userId]);
+  const totalRequests = totalUsers + totalUsers2;
+  // const sentUsers =
   const dispatch = useDispatch();
 
   const handleSubmit = (searchQuery) => {
@@ -29,7 +39,8 @@ function FriendRequests() {
 
   useEffect(() => {
     dispatch(getFriendRequests({ filterName, page }));
-  }, [filterName, page, dispatch]);
+    dispatch(getSentRequests({ filterName, page2 }));
+  }, [filterName, page, page2, dispatch]);
 
   return (
     <Container>
@@ -45,28 +56,48 @@ function FriendRequests() {
               variant="subtitle"
               sx={{ color: "text.secondary", ml: 1 }}
             >
-              {totalUsers > 1
-                ? `${totalUsers} requests found`
-                : totalUsers === 1
-                ? `${totalUsers} request found`
+              {totalRequests > 1
+                ? `${totalRequests} requests found`
+                : totalRequests === 1
+                ? `${totalRequests} request found`
                 : "No request found"}
             </Typography>
-
+          </Stack>
+          <Card sx={{ padding: 3 }}>
+            <Typography variant="h4" sx={{ mt: 3 }}>
+              Received
+            </Typography>
+            <Grid container spacing={3} my={1}>
+              {users.map((user) => (
+                <Grid key={user._id} item xs={12} md={4}>
+                  <UserCard profile={user} />
+                </Grid>
+              ))}
+            </Grid>
             <Pagination
               count={totalPages}
               page={page}
               onChange={(e, page) => setPage(page)}
             />
-          </Stack>
-        </Stack>
-
-        <Grid container spacing={3} my={1}>
-          {users.map((user) => (
-            <Grid key={user._id} item xs={12} md={4}>
-              <UserCard profile={user} />
+          </Card>
+          <Card sx={{ padding: 3 }}>
+            <Typography variant="h4" sx={{ mt: 3 }}>
+              Sent
+            </Typography>
+            <Grid container spacing={3} my={1}>
+              {users2.map((user) => (
+                <Grid key={user._id} item xs={12} md={4}>
+                  <UserCard profile={user} />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
+            <Pagination
+              count={totalPages2}
+              page={page2}
+              onChange={(e, page2) => setPage2(page2)}
+            />
+          </Card>
+        </Stack>
       </Card>
     </Container>
   );

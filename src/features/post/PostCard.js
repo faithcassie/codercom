@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Link,
@@ -9,9 +9,6 @@ import {
   CardHeader,
   IconButton,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogActions,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { fDate } from "../../utils/formatTime";
@@ -20,36 +17,27 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PostReaction from "./PostReaction";
 import CommentForm from "../comment/CommentForm";
 import CommentList from "../comment/CommentList";
-import { useDispatch, useSelector } from "react-redux";
-import { deletePost, getPosts, startEdit, startEditing } from "./postSlice";
+import { getPosts } from "./postSlice";
 import PostForm from "./PostForm";
 
-function PostCard({ post, userId, page }) {
+function PostCard({ post, userId, page, handleDelete }) {
   const [isEditing, setIsEditing] = React.useState(false);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [openDel, setOpenDel] = React.useState(false);
+  // const [openDel, setOpenDel] = React.useState(false);
 
-  const handleClickOpen = () => {
-    setOpenDel(true);
-  };
+  // const handleClickOpen = () => {
+  //   setOpenDel(true);
+  // };
 
-  const handleCloseBtn = () => {
-    setOpenDel(false);
-  };
+  // const handleCloseBtn = () => {
+  //   setOpenDel(false);
+  // };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const [openDialog, setOpenDialog] = React.useState(false);
 
-  const handleClickOpenDialog = () => {
-    setInterval(setOpenDialog(true), 1000);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
   // const handleEditBtn = (postId) => {
   //   dispatch(startEditing({ postId }));
   //   console.log(postId);
@@ -105,29 +93,14 @@ function PostCard({ post, userId, page }) {
               }}
             >
               <Stack>
-                <Button onClick={() => setOpenDialog(true)}>Delete</Button>
+                <Button onClick={() => handleDelete(post._id)}>Delete</Button>
                 <Button onClick={() => setIsEditing(true)}>Edit</Button>
               </Stack>
             </Popover>
           </>
         }
       />
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle id="alert-dialog-title">
-          {"Do you want to delete this post?"}
-        </DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Disagree</Button>
-          <Button
-            onClick={() =>
-              dispatch(deletePost({ postId: post._id, userId, page }))
-            }
-            autoFocus
-          >
-            Agree
-          </Button>
-        </DialogActions>
-      </Dialog>
+
       {isEditing ? (
         <PostForm
           postId={post._id}
